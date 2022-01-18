@@ -19,7 +19,7 @@ module.exports = {
       },
     ]}),
     new HtmlWebpackPlugin({
-      title: 'WTMP Starter',
+      title: 'WTMP Examples 2022',
       meta: {
         viewport: 'width=device-width, initial-scale=1.0'
       },
