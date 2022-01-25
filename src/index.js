@@ -1,31 +1,15 @@
-import SodexoLunchMenu from './assets/sodexo-day-example.json';
-// console.log(SodexoLunchMenu);
+import SodexoData from './modules/sodexo-data';
+import FazerData from './modules/fazer-data';
 
-const coursesEn = [];
-const coursesFi = [];
 let language = 'fi';
-let currentMenu = coursesFi;
-
-/**
- * Extract course titles from Sodexo menu JSON object
- *
- * @param {string} menu - JSON Menu to be parsed
- */
-const parseSodexoMenu = (menu) => {
-  const courses = Object.values(menu);
-  for (const course of courses) {
-    coursesEn.push(course.title_en);
-    coursesFi.push(course.title_fi);
-  }
-};
 
 /**
  * Renders menu courses on page
  */
-const renderMenu = () => {
-  const ulElement = document.querySelector('#sodexo');
+const renderMenu = (data, targetId) => {
+  const ulElement = document.querySelector('#' + targetId);
   ulElement.innerHTML = '';
-  for (const item of currentMenu) {
+  for (const item of data) {
     const listElement = document.createElement('li');
     listElement.textContent = item;
     ulElement.appendChild(listElement);
@@ -38,10 +22,12 @@ const renderMenu = () => {
 const switchLanguage = () => {
   if (language === 'fi') {
     language = 'en';
-    currentMenu = coursesEn;
+    renderMenu(SodexoData.coursesEn, 'sodexo');
+    renderMenu(FazerData.coursesEn, 'fazer');
   } else {
     language = 'fi';
-    currentMenu = coursesFi;
+    renderMenu(SodexoData.coursesFi, 'sodexo');
+    renderMenu(FazerData.coursesFi, 'fazer');
   }
 };
 
@@ -75,12 +61,11 @@ const pickARandomCourse = courses => {
  * Initialize application
  */
 const init = () => {
-  parseSodexoMenu(SodexoLunchMenu.courses);
-  renderMenu();
+  renderMenu(SodexoData.coursesFi, 'sodexo');
+  renderMenu(FazerData.coursesFi, 'fazer');
   // Event listeners for buttons
   document.querySelector('#switch-lang').addEventListener('click', () => {
     switchLanguage();
-    renderMenu();
   });
   document.querySelector('#pick-random').addEventListener('click', () => {
     // choose random dish & display it
@@ -90,7 +75,8 @@ const init = () => {
   document.querySelector('#sort-menu').addEventListener('click', () => {
     // currentMenu = sortCourses(currentMenu);
     currentMenu = sortCourses(currentMenu, 'desc');
-    renderMenu();
+    // TODO: fix sorting for both restaurant
+    //renderMenu();
   });
 };
 init();
