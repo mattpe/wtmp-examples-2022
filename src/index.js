@@ -1,5 +1,6 @@
 import SodexoData from './modules/sodexo-data';
 import FazerData from './modules/fazer-data';
+import {fetchData} from './modules/network';
 
 let language = 'fi';
 
@@ -61,8 +62,23 @@ const pickARandomCourse = courses => {
  * Initialize application
  */
 const init = () => {
+
+  // TODO: switch to real sodexo api data (no need to use proxy)
+  // update sodexo data module to be similar than Fazer
   renderMenu(SodexoData.coursesFi, 'sodexo');
-  renderMenu(FazerData.coursesFi, 'fazer');
+  fetchData('https://www.sodexo.fi/ruokalistat/output/weekly_json/152').then(data => {
+    console.log(data);
+  });
+
+  // Render Fazer
+  fetchData(FazerData.dataUrlFi, true).then(data => {
+    // TODO: when using proxy move JSON.parse stuff to Network module??
+    const menuData = JSON.parse(data.contents);
+    // TODO: How to set correct weekday?
+    const courses = FazerData.parseDayMenu(menuData.LunchMenus, 1);
+    renderMenu(courses, 'fazer');
+  });
+
   // Event listeners for buttons
   document.querySelector('#switch-lang').addEventListener('click', () => {
     switchLanguage();
