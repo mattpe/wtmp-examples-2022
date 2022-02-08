@@ -64,11 +64,13 @@ const pickARandomCourse = courses => {
  */
 const init = () => {
 
-  // TODO: switch to real sodexo api data (no need to use proxy)
+  // TODO:
   // update sodexo data module to be similar than Fazer
-  renderMenu(SodexoData.coursesFi, 'sodexo');
-  fetchData('https://www.sodexo.fi/ruokalistat/output/weekly_json/152').then(data => {
+
+  fetchData(SodexoData.dataUrlDaily).then(data => {
     console.log('sodexo', data);
+    const courses = SodexoData.parseDayMenu(data.courses);
+    renderMenu(courses, 'sodexo');
   });
 
   // Render Fazer

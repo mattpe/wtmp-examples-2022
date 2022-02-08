@@ -3,6 +3,8 @@
  *
  * @param {string} url - api endpoint url
  * @param {string} useProxy - optional proxy server
+ *
+ * @returns {Object} response json data
  */
 const fetchData = async (url, useProxy) => {
   if (useProxy === 'allorigins') {

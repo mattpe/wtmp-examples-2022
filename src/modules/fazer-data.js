@@ -1,10 +1,7 @@
-// TODO: fix data urls: how to get menu for correct day?
+import {todayISODate} from "./tools";
 
-const today = new Date().toISOString().split('T')[0];
-// console.log('today is ', today);
-
-const dataUrlFi = `https://www.foodandco.fi/api/restaurant/menu/week?language=fi&restaurantPageId=270540&weekDate=${today}`;
-const dataUrlEn = `https://www.foodandco.fi/api/restaurant/menu/week?language=en&restaurantPageId=270540&weekDate=${today}`;
+const dataUrlFi = `https://www.foodandco.fi/api/restaurant/menu/week?language=fi&restaurantPageId=270540&weekDate=${todayISODate}`;
+const dataUrlEn = `https://www.foodandco.fi/api/restaurant/menu/week?language=en&restaurantPageId=270540&weekDate=${todayISODate}`;
 
 /**
  * Parses Fazer json data to simple array of strings
