@@ -1,6 +1,7 @@
 import SodexoData from './modules/sodexo-data';
 import FazerData from './modules/fazer-data';
 import {fetchData} from './modules/network';
+import {getTodayIndex} from './modules/tools';
 
 let language = 'fi';
 
@@ -67,14 +68,13 @@ const init = () => {
   // update sodexo data module to be similar than Fazer
   renderMenu(SodexoData.coursesFi, 'sodexo');
   fetchData('https://www.sodexo.fi/ruokalistat/output/weekly_json/152').then(data => {
-    console.log(data);
+    console.log('sodexo', data);
   });
 
   // Render Fazer
-  fetchData(FazerData.dataUrlFi, 'allorigins').then(data => {
-    const menuData = data;
-    // TODO: How to set correct weekday?
-    const courses = FazerData.parseDayMenu(menuData.LunchMenus, 1);
+  fetchData(FazerData.dataUrlFi, 'fazer-php').then(data => {
+    console.log('fazer', data);
+    const courses = FazerData.parseDayMenu(data.LunchMenus, getTodayIndex());
     renderMenu(courses, 'fazer');
   });
 
