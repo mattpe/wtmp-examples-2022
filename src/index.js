@@ -2,6 +2,7 @@ import SodexoData from './modules/sodexo-data';
 import FazerData from './modules/fazer-data';
 import {fetchData} from './modules/network';
 import {getTodayIndex} from './modules/tools';
+import HSLData from './modules/hsl-data';
 
 let language = 'fi';
 
@@ -18,52 +19,37 @@ const renderMenu = (data, targetId) => {
   }
 };
 
-/**
- * Toggle between en/fi
- */
-const switchLanguage = () => {
-  if (language === 'fi') {
-    language = 'en';
-    renderMenu(SodexoData.coursesEn, 'sodexo');
-    renderMenu(FazerData.coursesEn, 'fazer');
-  } else {
-    language = 'fi';
-    renderMenu(SodexoData.coursesFi, 'sodexo');
-    renderMenu(FazerData.coursesFi, 'fazer');
-  }
-};
 
 /**
- * Sort courses alphapetically
+ * Display pages/vies in carousel mode
  *
- * @param {Array} courses menu array
- * @param {string} order 'asc'/'desc'
- * @returns {Array} sorted menu
+ * @param {number} activeView - view index to be displayed
+ * @param {number} duration - seconds between page updated
  */
-const sortCourses = (courses, order = 'asc') => {
-  const sortedCourses = courses.sort();
-  if (order === 'desc') {
-    sortedCourses.reverse();
+const createViewCarousel = (activeView, duration) => {
+  const views = document.querySelectorAll('section');
+  for (const view of views) {
+    view.style.display = 'none';
   }
-  return sortedCourses;
+  if (activeView === views.length) {
+    activeView = 0;
+  }
+  views[activeView].style.display = 'block';
+  setTimeout(() => {
+    createViewCarousel(activeView + 1, duration);
+  }, duration * 1000);
+
+  // TODO: how frequently to update displayed data?
+
 };
 
-/**
- * Picks a random dish
- *
- * @param {Array} courses menu
- * @returns {string} random dish
- */
-const pickARandomCourse = courses => {
-  const randomIndex = Math.floor(Math.random() * courses.length);
-  return courses[randomIndex];
-};
 
 /**
  * Initialize application
  */
 const init = () => {
 
+  createViewCarousel(0, 10);
   // TODO:
   // update sodexo data module to be similar than Fazer
 
@@ -72,28 +58,28 @@ const init = () => {
     const courses = SodexoData.parseDayMenu(data.courses);
     renderMenu(courses, 'sodexo');
   });
-
   // Render Fazer
-  fetchData(FazerData.dataUrlFi, 'fazer-php').then(data => {
-    console.log('fazer', data);
-    const courses = FazerData.parseDayMenu(data.LunchMenus, getTodayIndex());
-    renderMenu(courses, 'fazer');
+  // fetchData(FazerData.dataUrlFi, {}, 'fazer-php').then(data => {
+  //   console.log('fazer', data);
+  //   const courses = FazerData.parseDayMenu(data.LunchMenus, getTodayIndex());
+  //   renderMenu(courses, 'fazer');
+  // });
+
+  // Playing with hsl data
+  fetchData(HSLData.apiUrl, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/graphql'},
+    body: HSLData.getQueryForNextRidesByStopId(2132207)
+  }).then(response => {
+    // TODO: create separate render HSL data functions (in HSLData module maybe?)
+    console.log('hsl data', response.data.stop.stoptimesWithoutPatterns[0]);
+    const stop = response.data.stop;
+    let time = new Date((stop.stoptimesWithoutPatterns[0].realtimeArrival + stop.stoptimesWithoutPatterns[0].serviceDay) * 1000);
+    document.querySelector('#hsl-data').innerHTML = `<p>
+      Seuraava dösä pysäkiltä ${stop.name} on ${stop.stoptimesWithoutPatterns[0].headsign} ja saapuu
+      ${time}
+    </p>`;
   });
 
-  // Event listeners for buttons
-  document.querySelector('#switch-lang').addEventListener('click', () => {
-    switchLanguage();
-  });
-  document.querySelector('#pick-random').addEventListener('click', () => {
-    // choose random dish & display it
-    alert(pickARandomCourse(currentMenu));
-
-  });
-  document.querySelector('#sort-menu').addEventListener('click', () => {
-    // currentMenu = sortCourses(currentMenu);
-    currentMenu = sortCourses(currentMenu, 'desc');
-    // TODO: fix sorting for both restaurant
-    //renderMenu();
-  });
 };
 init();
